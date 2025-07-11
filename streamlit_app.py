@@ -25,23 +25,23 @@ if uploaded_files:
     if use_earnings:
         df["Total Earnings"] = df.groupby("Media Number")["Your Share"].transform("sum")
         earnings_percentile = df["Total Earnings"].rank(pct=True)
-        df["Bonus Star"] = earnings_percentile > 0.95
+        df["Bonus Star"] = earnings_percentile > 0.9
     else:
         df["Bonus Star"] = False
 
     def sales_to_stars(sales, bonus=False):
         stars = 0
-        if sales >= 15:
+        if sales >= 12:
             stars = 4
-        elif sales >= 10:
+        elif sales >= 7:
             stars = 3
-        elif sales >= 6:
+        elif sales >= 4:
             stars = 2
-        elif sales >= 3:
+        elif sales >= 2:
             stars = 1
         if bonus:
             stars += 1
-        return "★" * stars + "☆" * (5 - stars)
+        return "★" * min(stars, 5) + "☆" * max(0, 5 - stars)
 
     df["Star Rating"] = df.apply(lambda r: sales_to_stars(r["Sales Count"], r["Bonus Star"]), axis=1)
 
@@ -65,19 +65,27 @@ if uploaded_files:
 
     df["Keywords"] = df["Description"].apply(extract_keywords)
 
+    def clean_caption(desc):
+        if "(Photo by Bastiaan Slabbers" in desc:
+            desc = desc.split("(Photo by Bastiaan Slabbers")[0].strip()
+        return desc
+
+    df["Description"] = df["Description"].astype(str).apply(clean_caption)
+
     env = jinja2.Environment(loader=jinja2.FileSystemLoader("templates"))
     template = env.get_template("card_template.html")
 
     grouped = df.groupby("Media Number").first().reset_index()
     grouped["card_html"] = grouped.apply(lambda row: template.render(
-        thumbnail=row["Thumbnail"].replace("width='100'", "style='width:100%; height:auto; display:block;'"),
+        thumbnail=row["Thumbnail"].replace("width='100'", "style='width:100%; max-height:320px; object-fit:contain; display:block;'"),
         description=row.get("Description", ""),
         stars=row["Star Rating"],
-        keywords=row["Keywords"]
+        keywords=row["Keywords"],
+        caption_limit=250
     ), axis=1)
 
     st.markdown("### Preview")
-    st.markdown('<div class="wp-block-group is-layout-flex" style="display:flex;flex-wrap:wrap;gap:16px;">', unsafe_allow_html=True)
+    st.markdown('<div class="wp-block-group is-layout-flex" style="display:flex;flex-wrap:wrap;gap:16px; align-items:flex-start;">', unsafe_allow_html=True)
     for _, row in grouped.iterrows():
         st.markdown(row["card_html"], unsafe_allow_html=True)
     st.markdown("</div>", unsafe_allow_html=True)
@@ -86,7 +94,7 @@ if uploaded_files:
     full_html = f'''
     <html>
     <body>
-    <div class="wp-block-group is-layout-flex" style="display:flex;flex-wrap:wrap;gap:16px;">
+    <div class="wp-block-group is-layout-flex" style="display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start;">
     {cards_export}
     </div>
     </body>
