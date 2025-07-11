@@ -1,19 +1,22 @@
 from nltk.tokenize import sent_tokenize
 
+# utils/caption_utils.py
+
 def truncate_caption(text):
     """
-    Truncate after 3 “sentences” defined by splitting on “. ”,
-    stripping the byline, and returning (short, remainder).
+    Truncate a caption after 3 “sentences” (split on “. ”), strip the byline,
+    and return (short, remainder).
     """
-    if not isinstance(text, str):
+    if not isinstance(text, str) or not text.strip():
         return "", ""
-    # Remove byline
+    # Strip the byline
     t = text.replace("(Photo by Bastiaan Slabbers/NurPhoto)", "").strip()
-    # Naïve sentence split
-    sentences = [s.strip() for s in t.split(". ") if s]
-    if len(sentences) <= 3:
+    # Naïve “sentence” split on period+space
+    parts = [s.strip() for s in t.split(". ") if s.strip()]
+    if len(parts) <= 3:
         return t, ""
-    # Reconstruct
-    short = ". ".join(sentences[:3]) + "."
-    remainder = ". ".join(sentences[3:]) + ("" if t.endswith(".") else ".")
-    return short, remainder
+    # Rejoin first three, and the rest
+    short = ". ".join(parts[:3]) + "."
+    rest  = ". ".join(parts[3:]) + ("" if t.endswith(".") else ".")
+    return short, rest
+
