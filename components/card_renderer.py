@@ -11,6 +11,9 @@ def render_cards(df, per_row):
     end = start + per_row * 7
     subset = df.iloc[start:end]
 
+    st.markdown(template.render(items=subset.to_dict(orient="records"), per_row=per_row), unsafe_allow_html=True)
+    st.write(f"Page {page} of {pages}")
+
     cols = st.columns(per_row)
     for idx, row in enumerate(subset.itertuples()):
         with cols[idx % per_row]:
