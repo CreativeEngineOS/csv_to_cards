@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import nltk
 
-# Download necessary NLTK data (for tokenization in utils)
+# Download necessary NLTK data (used in utils)
 nltk.download("punkt", quiet=True)
 nltk.download("stopwords", quiet=True)
 
@@ -21,39 +21,49 @@ uploaded_file = st.file_uploader("Upload CSV", type=["csv"])
 if not uploaded_file:
     st.stop()
 
+# Load CSV
 df = pd.read_csv(uploaded_file)
 
-# Ensure required columns exist, with safe defaults
-defaults = {
-    "Media Number": "",
-    "Description": "",
-    "Sales Count": 0,
-    "Total Earnings": 0,
-    "URL": ""
+# ————————————————————————————————————————
+# PATCH: Normalize column names and fill defaults
+df = df.rename(columns={
+    "Media Link":     "URL",
+    "Your Share":     "Total Earnings",
+    "Your Share (%)": "Sales Count"
+})
+
+required_columns = {
+    "Media Number":    "",
+    "Description":     "",
+    "Sales Count":     0,
+    "Total Earnings":  0,
+    "URL":             ""
 }
-for col, default in defaults.items():
+
+for col, default in required_columns.items():
     if col not in df.columns:
-        st.warning(f"Missing column '{col}', filling with default.")
         df[col] = default
+    df[col] = df[col].fillna(default)
+# ————————————————————————————————————————
 
 # Truncate captions
 df["Short Caption"], df["Remainder Caption"] = zip(
     *df["Description"].map(truncate_caption)
 )
 
-# Load and apply keyword extraction
+# Load master keyword list and extract
 master_keywords = load_keywords()
 df["Keywords"] = df["Description"].apply(
     lambda txt: extract_keywords(txt, master_keywords)
 )
 
-# Compute star ratings
+# Compute rating
 df["Rating"] = df.apply(
     lambda row: get_star_rating(row["Sales Count"], row["Total Earnings"]),
     axis=1
 )
 
-# Deduplicate by Media Number and tally
+# Deduplicate by Media Number and tally up counts
 tally = (
     df.groupby("Media Number")
       .agg({
@@ -69,7 +79,7 @@ tally = (
       .sort_values("Media Number", ascending=False)
 )
 
-# Choose layout
+# Choose layout size
 view = st.radio(
     "Preview Size",
     ["Default (3 per row)", "Medium (5 per row)", "Compact (7 per row)"],
@@ -81,6 +91,6 @@ per_row = {
     "Compact (7 per row)": 7
 }[view]
 
-# Render cards and download button
+# Render cards and export
 render_cards(tally, per_row)
 render_download_button(tally)
