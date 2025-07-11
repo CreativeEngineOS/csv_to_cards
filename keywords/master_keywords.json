@@ -1,0 +1,87 @@
+{
+  "Elections": [
+    "voting",
+    "vote",
+    "democracy",
+    "ballot",
+    "campaign",
+    "Kamala Harris",
+    "Biden",
+    "election"
+  ],
+  "Philadelphia": [
+    "Philly",
+    "Philadelphia",
+    "West Philly",
+    "Fishtown",
+    "South Philly",
+    "Kensington",
+    "North Philly"
+  ],
+  "Immigration": [
+    "migrant",
+    "refugee",
+    "border",
+    "undocumented",
+    "deportation",
+    "asylum"
+  ],
+  "Climate": [
+    "climate change",
+    "wildfire",
+    "flood",
+    "environment",
+    "hurricane",
+    "drought",
+    "rising sea",
+    "heatwave"
+  ],
+  "Policing": [
+    "police",
+    "law enforcement",
+    "arrest",
+    "riot",
+    "protest",
+    "cop",
+    "SWAT"
+  ],
+  "Gun Violence": [
+    "shooting",
+    "gunfire",
+    "firearm",
+    "mass shooting",
+    "shooter"
+  ],
+  "LGBTQ": [
+    "pride",
+    "queer",
+    "transgender",
+    "lgbtq",
+    "gay",
+    "same-sex",
+    "drag"
+  ],
+  "Abortion": [
+    "abortion",
+    "reproductive rights",
+    "pro-choice",
+    "roe",
+    "planned parenthood"
+  ],
+  "Healthcare": [
+    "hospital",
+    "healthcare",
+    "pandemic",
+    "nurse",
+    "ICU",
+    "mental health"
+  ],
+  "Education": [
+    "school",
+    "teacher",
+    "student",
+    "graduation",
+    "university",
+    "education"
+  ]
+}
