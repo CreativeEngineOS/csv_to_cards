@@ -1,4 +1,4 @@
-<div class="wp-block-group" style="flex:1 1 calc(33.333% - 16px); min-width:280px; padding:0 0 24px 0; box-sizing:border-box;">
+<div class="wp-block-group" style="flex:1 1 {{ card_width }}%; min-width:240px; padding:0 0 24px 0; box-sizing:border-box;">
   <div style="width:100%; aspect-ratio:4/3; overflow:hidden; display:flex; align-items:center; justify-content:center;">
     {{ thumbnail | safe }}
   </div>
@@ -11,7 +11,7 @@
     <span style="font-size:16px;">{{ stars }}</span>
     <span style="text-align:right; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
     {% for kw in keywords %}
-      <a href="/tag/{{ kw | lower | replace(' ', '-') }}" style="margin-left:6px; text-transform:capitalize;">{{ kw }}{% if not loop.last %},{% endif %}</a>
+      <a href="/tag/{{ kw | lower | replace(' ', '-') }}" style="margin-left:6px; text-transform:capitalize; text-decoration:none;">{{ kw }}{% if not loop.last %},{% endif %}</a>
     {% endfor %}
     </span>
   </div>
