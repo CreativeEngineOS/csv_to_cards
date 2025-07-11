@@ -1,15 +1,20 @@
-<div class="media-card">
-  <a href="{{ item['URL'] }}" target="_blank">
-    <img src="{{ item['URL'] }}" style="width:100%; object-fit:cover;"/>
-  </a>
-  <div><strong>{{ item['Short Caption'] }}</strong></div>
+<div class="card" style="padding: 0.5rem;">
+  <!-- Thumbnail -->
+  <img src="{{ item['Image'] }}" alt="thumbnail" style="width:100%; height:auto; object-fit:cover; max-height: 280px;" />
+
+  <!-- Caption -->
+  <div class="caption" style="margin-top: 0.5rem; font-size: 0.95rem;"><strong>{{ item['Short Caption'] }}</strong></div>
   {% if item['Remainder Caption'] %}
-    <details><summary>Read more</summary>{{ item['Remainder Caption'] }}</details>
+    <details style="margin-top: 0.25rem;"><summary>Read more</summary><p>{{ item['Remainder Caption'] }}</p></details>
   {% endif %}
-  <div style="text-align:right;">{{ item['Rating'] }}</div>
-  <div style="text-align:right;">
+
+  <!-- Star rating -->
+  <div class="rating" style="font-size: 1rem; margin-top: 0.5rem;">{{ item['Rating'] }}</div>
+
+  <!-- Keywords (inline, clickable) -->
+  <div class="tags" style="text-align: right; font-size: 0.85rem; margin-top: 0.5rem;">
     {% for tag in item['Keywords'] %}
-      <a href="/tag/{{ tag|lower|replace(' ', '-') }}">{{ tag }}</a>{% if not loop.last %}, {% endif %}
+      <a href="/tag/{{ tag|lower|replace(' ', '-') }}" style="text-decoration: none;">{{ tag }}</a>{% if not loop.last %}, {% endif %}
     {% endfor %}
   </div>
 </div>
