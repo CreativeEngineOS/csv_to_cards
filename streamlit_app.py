@@ -67,4 +67,5 @@ if uploaded_file:
 
     df["Sales Count"] = df.groupby("Media Number")["Media Number"].transform("count")
     df["Total Earnings"] = df.groupby("Media Number")["Your Share"].transform("sum")
-    df["Rating"] = df.apply(lambda row: get_star_rating(row["Sales Count"], row["Total E]()
+    df["Rating"] = df.apply(lambda row: get_star_rating(row["Sales Count"], row["Total Earnings"]), axis=1)
+, row["Total E]()
