@@ -7,8 +7,8 @@ from nltk.tokenize import word_tokenize
 import json
 import math
 
-nltk.download("punkt")
-nltk.download("stopwords")
+nltk.download("punkt", quiet=True)
+nltk.download("stopwords", quiet=True)
 
 st.set_page_config(page_title="📸 CSV to WordPress Cards", layout="wide")
 st.title("📸 CSV to WordPress Media Cards")
@@ -69,11 +69,9 @@ if uploaded_file:
 
     df["Short Caption"], df["Remainder Caption"] = zip(*df["Description"].map(truncate_caption))
 
-    # Load Jinja2 card template
     env = jinja2.Environment(loader=jinja2.FileSystemLoader("templates"))
     template = env.get_template("card_template.html")
 
-    # Pagination controls
     view_mode = st.radio("Preview Size", ["Default (3 per row)", "Medium (5 per row)", "Small (6 per row)"])
     per_row = {"Default (3 per row)": 3, "Medium (5 per row)": 5, "Small (6 per row)": 6}[view_mode]
     per_page = 7 * per_row
