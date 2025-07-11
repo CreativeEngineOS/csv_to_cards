@@ -6,6 +6,9 @@ from io import StringIO
 st.set_page_config(page_title="CSV to WordPress Cards", layout="wide")
 st.title("📸 CSV to WordPress Media Cards")
 
+if st.button("🔁 Refresh Template"):
+    st.experimental_rerun()
+
 uploaded_files = st.file_uploader("Upload CSV files", type=["csv"], accept_multiple_files=True)
 
 if uploaded_files:
@@ -53,7 +56,7 @@ if uploaded_files:
     # Group and render cards
     grouped = df.groupby("Media Number").first().reset_index()
     grouped["card_html"] = grouped.apply(lambda row: template.render(
-        thumbnail=row["Thumbnail"],
+        thumbnail=row["Thumbnail"].replace("width='100'", "style='width:100%; height:auto; display:block;'"),
         description=row.get("Description", ""),
         stars=row["Star Rating"]
     ), axis=1)
