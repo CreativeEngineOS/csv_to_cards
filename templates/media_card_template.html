@@ -1,0 +1,16 @@
+<div style="width: 100%; margin-bottom: 1rem;">
+  <a href="{{ link }}" target="_blank">
+    {{ thumbnail | safe }}
+  </a>
+  <div style="font-size: 1.2em; font-weight: bold; margin-top: 0.3em;">{{ rating }}</div>
+  <div style="margin-top: 0.5em;">{{ caption }}
+    {% if remainder %}
+      <details><summary>Read more</summary>{{ remainder }}</details>
+    {% endif %}
+  </div>
+  {% if keywords %}
+  <div style="margin-top: 0.5em; text-align: right; font-size: 0.9em; color: #555;">
+    {{ keywords | upper }}
+  </div>
+  {% endif %}
+</div>
