@@ -1,0 +1,109 @@
+{
+  "U.S. Elections": [
+    "voting",
+    "vote",
+    "ballot",
+    "election",
+    "campaign",
+    "polling",
+    "Kamala Harris",
+    "Biden",
+    "Trump"
+  ],
+  "Politics & Government": [
+    "congress",
+    "senate",
+    "white house",
+    "government",
+    "policy",
+    "legislation",
+    "president",
+    "republican",
+    "democrat"
+  ],
+  "Social Issues": [
+    "racism",
+    "protest",
+    "police",
+    "gun",
+    "abortion",
+    "healthcare",
+    "pride",
+    "transgender",
+    "refugee",
+    "immigration",
+    "equity"
+  ],
+  "Economy/Business/Finance": [
+    "stock",
+    "inflation",
+    "dollar",
+    "crypto",
+    "business",
+    "job",
+    "market",
+    "startup",
+    "recession"
+  ],
+  "Infrastructure": [
+    "bridge",
+    "train",
+    "highway",
+    "construction",
+    "subway",
+    "roadwork",
+    "utilities"
+  ],
+  "Weather": [
+    "storm",
+    "hurricane",
+    "flood",
+    "climate",
+    "heatwave",
+    "blizzard",
+    "drought",
+    "lightning",
+    "wildfire"
+  ],
+  "Sports": [
+    "football",
+    "baseball",
+    "basketball",
+    "soccer",
+    "olympics",
+    "tennis",
+    "athlete",
+    "team",
+    "stadium"
+  ],
+  "Art/Culture/Entertainment": [
+    "museum",
+    "art",
+    "music",
+    "concert",
+    "film",
+    "festival",
+    "performance",
+    "actor",
+    "celebrity"
+  ],
+  "Human Interest": [
+    "family",
+    "child",
+    "volunteer",
+    "community",
+    "everyday",
+    "care",
+    "elderly",
+    "local"
+  ],
+  "Philadelphia": [
+    "Philly",
+    "Philadelphia",
+    "West Philly",
+    "South Philly",
+    "Fishtown",
+    "Kensington",
+    "North Philly"
+  ]
+}
