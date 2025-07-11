@@ -2,13 +2,21 @@ import streamlit as st
 import pandas as pd
 import jinja2
 import nltk
+import nltk.data
 from nltk.corpus import stopwords
 from nltk.tokenize import word_tokenize
 import json
 import math
 
-nltk.download("punkt", quiet=True)
-nltk.download("stopwords", quiet=True)
+try:
+    nltk.data.find("tokenizers/punkt")
+except LookupError:
+    nltk.download("punkt", quiet=True)
+
+try:
+    nltk.data.find("corpora/stopwords")
+except LookupError:
+    nltk.download("stopwords", quiet=True)
 
 st.set_page_config(page_title="📸 CSV to WordPress Cards", layout="wide")
 st.title("📸 CSV to WordPress Media Cards")
