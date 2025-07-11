@@ -1,0 +1,69 @@
+{
+  "Human Interest": [
+    "family",
+    "child",
+    "community",
+    "emotional"
+  ],
+  "Social Issues": [
+    "poverty",
+    "protest",
+    "justice",
+    "inequality"
+  ],
+  "Infrastructure": [
+    "bridge",
+    "road",
+    "construction",
+    "collapse"
+  ],
+  "Politics & Government": [
+    "congress",
+    "white house",
+    "policy",
+    "republican",
+    "democrat"
+  ],
+  "Sports": [
+    "game",
+    "football",
+    "baseball",
+    "team",
+    "tournament"
+  ],
+  "Weather": [
+    "storm",
+    "rain",
+    "snow",
+    "hurricane"
+  ],
+  "Art/Culture/Entertainment": [
+    "museum",
+    "music",
+    "film",
+    "art"
+  ],
+  "U.S. Elections": [
+    "vote",
+    "election",
+    "ballot",
+    "kamala",
+    "biden",
+    "trump",
+    "democracy"
+  ],
+  "Economy/Business/Finance": [
+    "inflation",
+    "stock",
+    "market",
+    "economy",
+    "jobs"
+  ],
+  "Philadelphia": [
+    "fishtown",
+    "germantown",
+    "kensington",
+    "philly",
+    "philadelphia"
+  ]
+}

@@ -1,0 +1,15 @@
+<div class="media-card">
+  <a href="{{ item['URL'] }}" target="_blank">
+    <img src="{{ item['URL'] }}" style="width:100%; object-fit:cover;"/>
+  </a>
+  <div><strong>{{ item['Short Caption'] }}</strong></div>
+  {% if item['Remainder Caption'] %}
+    <details><summary>Read more</summary>{{ item['Remainder Caption'] }}</details>
+  {% endif %}
+  <div style="text-align:right;">{{ item['Rating'] }}</div>
+  <div style="text-align:right;">
+    {% for tag in item['Keywords'] %}
+      <a href="/tag/{{ tag|lower|replace(' ', '-') }}">{{ tag }}</a>{% if not loop.last %}, {% endif %}
+    {% endfor %}
+  </div>
+</div>
