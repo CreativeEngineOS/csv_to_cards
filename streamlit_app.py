@@ -1,103 +1,105 @@
 import streamlit as st
 import pandas as pd
 import jinja2
+import nltk
+from nltk.corpus import stopwords
+from nltk.tokenize import word_tokenize
 import json
-import re
-from io import StringIO
+import math
 
-st.set_page_config(page_title="CSV to WordPress Cards", layout="wide")
+nltk.download("punkt")
+nltk.download("stopwords")
+
+st.set_page_config(page_title="📸 CSV to WordPress Cards", layout="wide")
 st.title("📸 CSV to WordPress Media Cards")
 
 if st.button("🔁 Refresh Template"):
     st.experimental_rerun()
 
-uploaded_files = st.file_uploader("Upload CSV files", type=["csv"], accept_multiple_files=True)
+uploaded_file = st.file_uploader("Upload Combined CSV", type="csv")
 
-if uploaded_files:
-    dfs = [pd.read_csv(f) for f in uploaded_files]
-    df = pd.concat(dfs, ignore_index=True)
+if uploaded_file:
+    df = pd.read_csv(uploaded_file)
+    df = df.sort_values(by="Media Number", ascending=False)
 
-    drop_cols = ["Fee", "Currency", "Your Share (%)", "Your Share"]
-    df = df.drop(columns=[col for col in drop_cols if col in df.columns])
-
-    df["Sales Count"] = df["Media Number"].map(df["Media Number"].value_counts())
-    use_earnings = "Your Share" in df.columns
-    if use_earnings:
-        df["Total Earnings"] = df.groupby("Media Number")["Your Share"].transform("sum")
-        earnings_percentile = df["Total Earnings"].rank(pct=True)
-        df["Bonus Star"] = earnings_percentile > 0.9
-    else:
-        df["Bonus Star"] = False
-
-    def sales_to_stars(sales, bonus=False):
-        stars = 0
-        if sales >= 12:
-            stars = 4
-        elif sales >= 7:
-            stars = 3
-        elif sales >= 4:
-            stars = 2
-        elif sales >= 2:
-            stars = 1
-        if bonus:
-            stars += 1
-        return "★" * min(stars, 5) + "☆" * max(0, 5 - stars)
-
-    df["Star Rating"] = df.apply(lambda r: sales_to_stars(r["Sales Count"], r["Bonus Star"]), axis=1)
-
-    with open("keywords/master_keywords.json", "r") as f:
+    with open("keywords/master_keywords.json") as f:
         master_keywords = json.load(f)
 
-    stopwords = set([
-        "the", "it", "a", "an", "of", "on", "at", "by", "with", "for", "in", "and", "or", "to", "is", "are", "was", "were"
-    ])
+    stop_words = set(stopwords.words("english"))
 
     def extract_keywords(text, max_keywords=5):
-        tokens = re.findall(r'\b\w+\b', str(text).lower())
-        tokens = [t for t in tokens if t not in stopwords]
+        tokens = word_tokenize(str(text).lower())
+        tokens = [t for t in tokens if t.isalnum() and t not in stop_words]
         matched = set()
         for master, terms in master_keywords.items():
             for term in terms:
-                if re.search(r'\b' + re.escape(term.lower()) + r'\b', str(text).lower()):
+                if term.lower() in tokens:
                     matched.add(master)
                     break
         return list(matched)[:max_keywords]
 
     df["Keywords"] = df["Description"].apply(extract_keywords)
 
-    def clean_caption(desc):
-        if "(Photo by Bastiaan Slabbers" in desc:
-            desc = desc.split("(Photo by Bastiaan Slabbers")[0].strip()
-        return desc
+    def get_star_rating(sales_count, total_earnings):
+        if sales_count >= 10 or total_earnings > 1000:
+            return "★★★★★"
+        elif sales_count >= 5 or total_earnings > 500:
+            return "★★★★"
+        elif sales_count >= 3 or total_earnings > 200:
+            return "★★★"
+        elif sales_count >= 2:
+            return "★★"
+        elif sales_count >= 1:
+            return "★"
+        else:
+            return ""
 
-    df["Description"] = df["Description"].astype(str).apply(clean_caption)
+    df["Sales Count"] = df.groupby("Media Number")["Media Number"].transform("count")
+    df["Total Earnings"] = df.groupby("Media Number")["Your Share"].transform("sum")
+    df["Rating"] = df.apply(lambda row: get_star_rating(row["Sales Count"], row["Total Earnings"]), axis=1)
 
+    def truncate_caption(text):
+        text = text.replace("(Photo by Bastiaan Slabbers/NurPhoto)", "").strip()
+        sentences = text.split(". ")
+        if len(sentences) <= 2:
+            return text, ""
+        short = ". ".join(sentences[:2]) + "."
+        rest = ". ".join(sentences[2:])
+        return short, rest
+
+    df["Short Caption"], df["Remainder Caption"] = zip(*df["Description"].map(truncate_caption))
+
+    # Load Jinja2 card template
     env = jinja2.Environment(loader=jinja2.FileSystemLoader("templates"))
     template = env.get_template("card_template.html")
 
-    grouped = df.groupby("Media Number").first().reset_index()
-    grouped["card_html"] = grouped.apply(lambda row: template.render(
-        thumbnail=row["Thumbnail"].replace("width='100'", "style='width:100%; max-height:320px; object-fit:contain; display:block;'"),
-        description=row.get("Description", ""),
-        stars=row["Star Rating"],
-        keywords=row["Keywords"],
-        caption_limit=250
-    ), axis=1)
+    # Pagination controls
+    view_mode = st.radio("Preview Size", ["Default (3 per row)", "Medium (5 per row)", "Small (6 per row)"])
+    per_row = {"Default (3 per row)": 3, "Medium (5 per row)": 5, "Small (6 per row)": 6}[view_mode]
+    per_page = 7 * per_row
+    total_cards = len(df)
+    total_pages = math.ceil(total_cards / per_page)
+    page = st.number_input("Page", min_value=1, max_value=total_pages, value=1, step=1)
 
-    st.markdown("### Preview")
-    st.markdown('<div class="wp-block-group is-layout-flex" style="display:flex;flex-wrap:wrap;gap:16px; align-items:flex-start;">', unsafe_allow_html=True)
-    for _, row in grouped.iterrows():
-        st.markdown(row["card_html"], unsafe_allow_html=True)
+    start = (page - 1) * per_page
+    end = start + per_page
+
+    cards = []
+    for _, row in df.iloc[start:end].iterrows():
+        card_html = template.render(
+            thumbnail=row["Thumbnail"],
+            description=row["Description"],
+            short_caption=row["Short Caption"],
+            remainder_caption=row["Remainder Caption"],
+            stars=row["Rating"],
+            keywords=row["Keywords"],
+            card_width=100 / per_row
+        )
+        cards.append(card_html)
+
+    st.markdown("<div style='display:flex; flex-wrap:wrap; justify-content:space-between;'>", unsafe_allow_html=True)
+    for card in cards:
+        st.markdown(card, unsafe_allow_html=True)
     st.markdown("</div>", unsafe_allow_html=True)
 
-    cards_export = "".join(grouped["card_html"].tolist())
-    full_html = f'''
-    <html>
-    <body>
-    <div class="wp-block-group is-layout-flex" style="display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start;">
-    {cards_export}
-    </div>
-    </body>
-    </html>
-    '''
-    st.download_button("⬇️ Download WordPress HTML Export", full_html, file_name="media_cards.html", mime="text/html")
+    st.markdown(f"<p style='text-align:center;'>Page {page} of {total_pages}</p>", unsafe_allow_html=True)
