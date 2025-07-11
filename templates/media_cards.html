@@ -1,7 +1,7 @@
 <div class="card-row" style="display: flex; flex-wrap: wrap; gap: 1rem;">
 {% for item in items %}
   <div class="card" style="flex: 1 1 calc(100% / {{ per_row }} - 1rem); max-width: calc(100% / {{ per_row }} - 1rem); box-sizing: border-box; position: relative;">
-    
+
     <!-- Thumbnail with hover message -->
     <div class="thumb" style="width: 100%; aspect-ratio: 4/3; overflow: hidden; position: relative;">
       <a href="{{ item['URL'] }}" target="_blank" style="display: block; position: relative;">
@@ -27,8 +27,32 @@
     </div>
 
     <!-- Caption -->
-<div class="caption" style="margin-top: 0.5rem; font-size: 0.95rem;"><strong>{{ item['Short Caption'] }}</strong></div>
-{% if item['Remainder Caption'] %}
-  <details style="margin-top: 0.25rem;"><summary>Read more</summary><p>{{ item['Remainder Caption'] }}</p></details>
-{% endif %}
+    <div class="caption" style="margin-top: 0.5rem; font-size: 0.95rem;">
+      <strong>{{ item['Short Caption'] }}</strong>
+    </div>
 
+    {% if item['Remainder Caption'] %}
+    <details style="margin-top: 0.25rem;">
+      <summary>Read more</summary>
+      <p>{{ item['Remainder Caption'] }}</p>
+    </details>
+    {% endif %}
+
+    <!-- Star rating -->
+    <div class="rating" style="font-size: 1rem; margin-top: 0.5rem;">{{ item['Rating'] }}</div>
+
+    <!-- Keywords -->
+    <div class="tags" style="text-align: right; font-size: 0.85rem; margin-top: 0.5rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+      {% for tag in item['Keywords'] %}
+        <a href="/tag/{{ tag|lower|replace(' ', '-') }}" style="text-decoration: none;">{{ tag }}</a>{% if not loop.last %}, {% endif %}
+      {% endfor %}
+    </div>
+  </div>
+{% endfor %}
+</div>
+
+<style>
+.card:hover .hover-message {
+  visibility: visible;
+}
+</style>
