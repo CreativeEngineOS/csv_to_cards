@@ -1,13 +1,17 @@
 def get_star_rating(sales, earnings):
-    score = sales + earnings / 50
-    if score > 15:
-        return "★★★★★"
-    elif score > 10:
-        return "★★★★"
-    elif score > 5:
-        return "★★★"
-    elif score > 2:
-        return "★★"
-    elif score > 0:
-        return "★"
-    return ""
+    try:
+        sales = float(sales)
+        earnings = float(earnings)
+    except:
+        return "★☆☆☆☆"
+
+    score = 1
+    if sales >= 3 or earnings > 200:
+        score = 2
+    if sales >= 5 or earnings > 500:
+        score = 3
+    if sales >= 10 or earnings > 1000:
+        score = 4
+    if sales >= 20 or earnings > 2000:
+        score = 5
+    return "★" * score + "☆" * (5 - score)
