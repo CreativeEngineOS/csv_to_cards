@@ -4,7 +4,7 @@ import jinja2
 import nltk
 import nltk.data
 from nltk.corpus import stopwords
-from nltk.tokenize import word_tokenize
+from nltk.tokenize import TreebankWordTokenizer
 import json
 import math
 
@@ -36,7 +36,7 @@ if uploaded_file:
     stop_words = set(stopwords.words("english"))
 
     def extract_keywords(text, max_keywords=5):
-        tokens = word_tokenize(str(text).lower())
+        tokens = TreebankWordTokenizer().tokenize(str(text).lower())
         tokens = [t for t in tokens if t.isalnum() and t not in stop_words]
         matched = set()
         for master, terms in master_keywords.items():
