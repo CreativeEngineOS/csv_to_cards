@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import nltk
+import re  # <-- NEW for image extraction
 
 # Download necessary NLTK data (used in utils)
 nltk.download("punkt", quiet=True)
@@ -38,13 +39,22 @@ required_columns = {
     "Description":     "",
     "Sales Count":     0,
     "Total Earnings":  0,
-    "URL":             ""
+    "URL":             "",
+    "Thumbnail":       ""
 }
-
 for col, default in required_columns.items():
     if col not in df.columns:
         df[col] = default
     df[col] = df[col].fillna(default)
+
+# Extract image src from thumbnail HTML
+def extract_img_src(html):
+    if isinstance(html, str):
+        match = re.search(r'src=[\'"]([^\'"]+)', html)
+        return match.group(1) if match else ""
+    return ""
+
+df["Image"] = df["Thumbnail"].apply(extract_img_src)
 # ————————————————————————————————————————
 
 # Truncate captions
@@ -75,12 +85,12 @@ tally = (
          "Remainder Caption": "first",
          "Sales Count": "sum",
          "Total Earnings": "sum",
-         "URL": "first",
+         "Image": "first",         # from Thumbnail src
          "Keywords": "first",
          "Rating": "first"
       })
       .reset_index()
-      .sort_values("Media Number", ascending=False)  # now safe
+      .sort_values("Media Number", ascending=False)
 )
 
 # Choose layout size
