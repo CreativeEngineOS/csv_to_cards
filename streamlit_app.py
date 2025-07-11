@@ -76,5 +76,12 @@ tally["Rating"] = tally.apply(lambda row: get_star_rating(row["Sales Count"], ro
 view = st.radio("Preview Size", ["Default (3 per row)", "Medium (5 per row)", "Compact (7 per row)"], horizontal=True)
 per_row = {"Default (3 per row)": 3, "Medium (5 per row)": 5, "Compact (7 per row)": 7}[view]
 
+# Specify Licenssing Partner
+if "Agency" in df.columns:
+    tally["Agency"] = df.groupby("Media Number")["Agency"].first().reindex(tally["Media Number"]).values
+else:
+    tally["Agency"] = "Agency"
+
+
 render_cards(tally, per_row)
 render_download_button(tally)
