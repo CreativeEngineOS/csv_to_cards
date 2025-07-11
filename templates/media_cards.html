@@ -27,5 +27,9 @@
     </div>
 
     <!-- Caption -->
-    <div class="caption" style="margin-top: 0.5rem; font-size: 0.95rem;"><strong>{{ item['Short Caption'] }}</strong></div>
-    {% if item['Remainder Caption]()
+  <!-- Caption -->
+<div class="caption" style="margin-top: 0.5rem; font-size: 0.95rem;"><strong>{{ item['Short Caption'] }}</strong></div>
+{% if item['Remainder Caption'] %}
+  <details style="margin-top: 0.25rem;"><summary>Read more</summary><p>{{ item['Remainder Caption'] }}</p></details>
+{% endif %}
+
