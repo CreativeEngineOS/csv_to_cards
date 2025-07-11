@@ -1,75 +1,86 @@
 import streamlit as st
 import pandas as pd
-import jinja2
 import nltk
-from nltk.corpus import stopwords
-from nltk.tokenize import sent_tokenize, word_tokenize
-import json
 
-# Ensure NLTK data
-nltk.download("punkt")
-nltk.download("stopwords")
+# Download necessary NLTK data (for tokenization in utils)
+nltk.download("punkt", quiet=True)
+nltk.download("stopwords", quiet=True)
 
-st.set_page_config(page_title="CSV to WP Cards", layout="wide")
+from utils.keyword_utils import load_keywords, extract_keywords
+from utils.caption_utils import truncate_caption
+from utils.rating_utils import get_star_rating
+from components.card_renderer import render_cards
+from components.download import render_download_button
+
+# Page config
+st.set_page_config(page_title="📸 CSV to WordPress Media Cards", layout="wide")
 st.title("📸 CSV to WordPress Media Cards")
 
 # File upload
-uploaded = st.file_uploader("Upload CSV", type=["csv"])
-if not uploaded:
+uploaded_file = st.file_uploader("Upload CSV", type=["csv"])
+if not uploaded_file:
     st.stop()
-df = pd.read_csv(uploaded)
 
-# Column fallback
-required = {"Media Number": "", "Description": "", "Sales Count": 0, "Total Earnings": 0, "URL": ""}
-for col, default in required.items():
+df = pd.read_csv(uploaded_file)
+
+# Ensure required columns exist, with safe defaults
+defaults = {
+    "Media Number": "",
+    "Description": "",
+    "Sales Count": 0,
+    "Total Earnings": 0,
+    "URL": ""
+}
+for col, default in defaults.items():
     if col not in df.columns:
+        st.warning(f"Missing column '{col}', filling with default.")
         df[col] = default
 
-# Caption truncation
-def truncate(text):
-    if not isinstance(text, str):
-        return "", ""
-    text = text.replace("(Photo by Bastiaan Slabbers/NurPhoto)", "").strip()
-    s = sent_tokenize(text)
-    if len(s) <= 3:
-        return text, ""
-    return " ".join(s[:3]), " ".join(s[3:])
-df["Short"], df["Rest"] = zip(*df["Description"].map(truncate))
+# Truncate captions
+df["Short Caption"], df["Remainder Caption"] = zip(
+    *df["Description"].map(truncate_caption)
+)
 
-# Keywords
-with open("keywords.json") as f:
-    master = json.load(f)
-stop = set(stopwords.words("english"))
-def extract(text):
-    tokens = [t for t in word_tokenize(text.lower()) if t.isalnum() and t not in stop]
-    tags = []
-    for k, terms in master.items():
-        if any(term in tokens for term in terms):
-            tags.append(k)
-    return tags[:5]
-df["Tags"] = df["Description"].apply(extract)
+# Load and apply keyword extraction
+master_keywords = load_keywords()
+df["Keywords"] = df["Description"].apply(
+    lambda txt: extract_keywords(txt, master_keywords)
+)
 
-# Rating
-def star(s, e):
-    score = s + e/50
-    if score>15: return "★★★★★"
-    if score>10: return "★★★★"
-    if score>5: return "★★★"
-    if score>2: return "★★"
-    if score>0: return "★"
-    return ""
-df["Stars"] = df.apply(lambda r: star(r["Sales Count"], r["Total Earnings"]), axis=1)
+# Compute star ratings
+df["Rating"] = df.apply(
+    lambda row: get_star_rating(row["Sales Count"], row["Total Earnings"]),
+    axis=1
+)
 
-# Dedupe
-t = df.groupby("Media Number").agg({
-    "Short": "first", "Rest": "first", "Stars": "first", "URL": "first", "Tags": "first"
-}).reset_index()
+# Deduplicate by Media Number and tally
+tally = (
+    df.groupby("Media Number")
+      .agg({
+         "Short Caption": "first",
+         "Remainder Caption": "first",
+         "Sales Count": "sum",
+         "Total Earnings": "sum",
+         "URL": "first",
+         "Keywords": "first",
+         "Rating": "first"
+      })
+      .reset_index()
+      .sort_values("Media Number", ascending=False)
+)
 
-# Render
-per_row = 3
-env = jinja2.Environment(loader=jinja2.FileSystemLoader("templates"))
-tpl = env.get_template("media_cards.html")
-html = "".join([tpl.render(item=r._asdict()) for r in t.itertuples()])
+# Choose layout
+view = st.radio(
+    "Preview Size",
+    ["Default (3 per row)", "Medium (5 per row)", "Compact (7 per row)"],
+    horizontal=True
+)
+per_row = {
+    "Default (3 per row)": 3,
+    "Medium (5 per row)": 5,
+    "Compact (7 per row)": 7
+}[view]
 
-st.download_button("Download HTML (.txt)", html, "cards.txt", "text/plain")
-st.components.v1.html(html, height=600, scrolling=True)
+# Render cards and download button
+render_cards(tally, per_row)
+render_download_button(tally)
