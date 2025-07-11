@@ -1,24 +1,38 @@
-# 📸 CSV to WordPress Media Cards
+# CSV to WordPress Media Cards (v7.2.3)
 
-This tool transforms a sales-based CSV report of visual media into clean, responsive HTML "media cards" designed to integrate seamlessly with **WordPress Gutenberg** blocks.
+This Streamlit tool converts a CSV of media sales (including thumbnail URLs, captions, media numbers, etc.) into WordPress-friendly HTML "media cards".
 
-## 🚀 Features
+## Features
 
-- ✅ Combines and visualizes media metadata from CSV reports
-- 📸 Responsive image cards with thumbnails, captions, and tag-based filtering
-- ⭐ Popularity-based star rating system
-- 🏷️ Automatic keyword extraction from captions using smart grouping logic
-- 📤 Export HTML output (as `.txt`) for direct copy-paste into WordPress
-- 🔎 Pagination, layout modes, and tag navigation
+- Upload CSV file with media data.
+- Automatically generates:
+  - Responsive image cards.
+  - Keyword extraction based on master themes.
+  - Popularity ratings (★ system).
+- Export as `.txt` for easy Gutenberg copy-paste.
 
-## 📂 Folder Structure
+## Requirements
+
+- Python 3.9+
+- See `requirements.txt`
+
+## Run Locally
 
 ```bash
-csv_to_cards/
-├── streamlit_app.py          # Main app file (Streamlit)
-├── templates/
-│   └── media_card_template.html   # Jinja2 template for media cards
-├── master_keywords.json      # Grouped keyword logic for tagging
-├── requirements.txt          # Python dependencies
-└── sample_input/
-    └── sales_data.csv        # Example CSV input file
+pip install -r requirements.txt
+streamlit run streamlit_app.py
+```
+
+## Keywords
+
+Master keyword themes include:
+- U.S. Elections
+- Philadelphia
+- Politics & Government
+- Social Issues
+- Human Interest
+- Infrastructure
+- Weather
+- Sports
+- Art/Culture/Entertainment
+- Economy/Business/Finance
