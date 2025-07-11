@@ -4,11 +4,6 @@ import jinja2
 import json
 import re
 from io import StringIO
-from nltk.corpus import stopwords
-from nltk.tokenize import word_tokenize
-import nltk
-nltk.download('punkt')
-nltk.download('stopwords')
 
 st.set_page_config(page_title="CSV to WordPress Cards", layout="wide")
 st.title("📸 CSV to WordPress Media Cards")
@@ -19,7 +14,6 @@ if st.button("🔁 Refresh Template"):
 uploaded_files = st.file_uploader("Upload CSV files", type=["csv"], accept_multiple_files=True)
 
 if uploaded_files:
-    # Combine and clean CSVs
     dfs = [pd.read_csv(f) for f in uploaded_files]
     df = pd.concat(dfs, ignore_index=True)
 
@@ -36,6 +30,7 @@ if uploaded_files:
         df["Bonus Star"] = False
 
     def sales_to_stars(sales, bonus=False):
+        stars = 0
         if sales >= 15:
             stars = 4
         elif sales >= 10:
@@ -44,34 +39,32 @@ if uploaded_files:
             stars = 2
         elif sales >= 3:
             stars = 1
-        else:
-            stars = 0
         if bonus:
             stars += 1
         return "★" * stars + "☆" * (5 - stars)
 
     df["Star Rating"] = df.apply(lambda r: sales_to_stars(r["Sales Count"], r["Bonus Star"]), axis=1)
 
-    # Load keyword mapping
     with open("keywords/master_keywords.json", "r") as f:
         master_keywords = json.load(f)
 
-    stop_words = set(stopwords.words("english"))
+    stopwords = set([
+        "the", "it", "a", "an", "of", "on", "at", "by", "with", "for", "in", "and", "or", "to", "is", "are", "was", "were"
+    ])
 
     def extract_keywords(text, max_keywords=5):
-        tokens = word_tokenize(str(text).lower())
-        tokens = [t for t in tokens if t.isalnum() and t not in stop_words]
+        tokens = re.findall(r'\b\w+\b', str(text).lower())
+        tokens = [t for t in tokens if t not in stopwords]
         matched = set()
         for master, terms in master_keywords.items():
             for term in terms:
-                if re.search(r'\b' + re.escape(term.lower()) + r'\b', text.lower()):
+                if re.search(r'\b' + re.escape(term.lower()) + r'\b', str(text).lower()):
                     matched.add(master)
                     break
         return list(matched)[:max_keywords]
 
     df["Keywords"] = df["Description"].apply(extract_keywords)
 
-    # Load template
     env = jinja2.Environment(loader=jinja2.FileSystemLoader("templates"))
     template = env.get_template("card_template.html")
 
@@ -89,7 +82,6 @@ if uploaded_files:
         st.markdown(row["card_html"], unsafe_allow_html=True)
     st.markdown("</div>", unsafe_allow_html=True)
 
-    # Export HTML
     cards_export = "".join(grouped["card_html"].tolist())
     full_html = f'''
     <html>
