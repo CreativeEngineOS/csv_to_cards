@@ -26,6 +26,7 @@ df = pd.read_csv(uploaded_file)
 
 # ————————————————————————————————————————
 # PATCH: Normalize column names and fill defaults
+
 df = df.rename(columns={
     "Media Link":     "URL",
     "Your Share":     "Total Earnings",
@@ -63,6 +64,9 @@ df["Rating"] = df.apply(
     axis=1
 )
 
+# Ensure Media Number is a string for consistent sorting/grouping
+df["Media Number"] = df["Media Number"].astype(str)
+
 # Deduplicate by Media Number and tally up counts
 tally = (
     df.groupby("Media Number")
@@ -76,7 +80,7 @@ tally = (
          "Rating": "first"
       })
       .reset_index()
-      .sort_values("Media Number", ascending=False)
+      .sort_values("Media Number", ascending=False)  # now safe
 )
 
 # Choose layout size
