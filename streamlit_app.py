@@ -1,15 +1,13 @@
 import streamlit as st
 import pandas as pd
 import nltk
+nltk.download("punkt")
+nltk.download("stopwords")
 from utils.keyword_utils import load_keywords, extract_keywords
 from utils.caption_utils import truncate_caption
 from utils.rating_utils import get_star_rating
 from components.card_renderer import render_cards
 from components.download import render_download_button
-
-# NLTK setup
-nltk.download("punkt")
-nltk.download("stopwords")
 
 # App config
 st.set_page_config(page_title="📸 CSV to Media Cards", layout="wide")
