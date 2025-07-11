@@ -1,14 +1,14 @@
-<div class="wp-block-group" style="flex:1 1 {{ card_width }}%; min-width:240px; padding:0 0 24px 0; box-sizing:border-box;">
+<div class="wp-block-group" style="flex:1 1 {{ card_width }}%; min-width:260px; box-sizing:border-box;">
   <div style="width:100%; aspect-ratio:4/3; overflow:hidden; display:flex; align-items:center; justify-content:center;">
     {{ thumbnail | safe }}
   </div>
   <p style="margin:12px 0; font-size:15px; line-height:1.5;">
-    {{ description[:caption_limit] }}{% if description|length > caption_limit %}...
-    <details><summary style='cursor:pointer; color:#0073aa;'>Read more</summary><div style='margin-top:8px;'>{{ description }}</div></details>
+    {{ short_caption }}{% if remainder_caption %}
+    <details><summary style='cursor:pointer; color:#0073aa;'>Read more</summary><div style='margin-top:8px;'>{{ remainder_caption }}</div></details>
     {% endif %}
   </p>
-  <div style="display:flex; justify-content:space-between; align-items:center; font-size:14px; color:#444;">
-    <span style="font-size:16px;">{{ stars }}</span>
+  <div style="display:flex; justify-content:space-between; align-items:center; font-size:15px; color:#333;">
+    <span style="font-size:20px;">{{ stars }}</span>
     <span style="text-align:right; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">
     {% for kw in keywords %}
       <a href="/tag/{{ kw | lower | replace(' ', '-') }}" style="margin-left:6px; text-transform:capitalize; text-decoration:none;">{{ kw }}{% if not loop.last %},{% endif %}</a>
